@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/kenility
+      - JWT_SECRET=kenility
+      - SALT=kenility
+      - NODE_ENV=development
+    depends_on:
+      - mongodb
+    command: sh -c "npm start"
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "sleep 30 && npm run seed"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/kenility
+      - JWT_SECRET=kenility
+      - SALT=kenility
+      - NODE_ENV=development
+    depends_on:
+      - app
+      - mongodb
+
+volumes:
+  mongodb_data:
